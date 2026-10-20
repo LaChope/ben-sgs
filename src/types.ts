@@ -126,3 +126,16 @@ export interface OperationalOccurrence {
   baselineRefId: string; // 0..* evaluated against 1
   auditTrail: AuditEntry[]; // R11, R13
 }
+
+export interface Persona {
+  role: StakeholderRole;
+  orgName: string;
+  department: string;
+  userTitle: string;
+  themeColor: string;
+}
+
+export type NavSection =
+  "DASHBOARD" | "INCIDENTS" | "FEDERATED_RADAR" | "ECCAIRS";
+export type WorkspaceTab =
+  "OVERVIEW" | "OEM_SUPPORT" | "SFHA_BASELINE" | "COMPLIANCE";
