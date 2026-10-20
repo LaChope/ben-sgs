@@ -6,16 +6,15 @@ import { OccurrenceWorkspace } from "./components/workspace/OccurrenceWorkspace"
 import { FederatedRadarView } from "./components/radar/FederatedRadarView";
 import { EccairsView } from "./components/eccairs/EccairsView";
 import { NewOccurrenceModal } from "./components/modals/NewOccurrenceModal";
-import "./App.css";
 
 function AppContent() {
   const { activeNav } = useOccurrence();
 
   return (
-    <div className="app-shell">
+    <div className="grid grid-cols-[250px_1fr] min-h-screen bg-slate-50 text-slate-900">
       <Sidebar />
 
-      <div className="portal-main">
+      <div className="flex flex-col h-screen overflow-hidden">
         <Topbar />
 
         {activeNav === "DASHBOARD" && <FleetDashboard />}

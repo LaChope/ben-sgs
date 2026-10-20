@@ -13,14 +13,14 @@ export function OccurrenceWorkspace() {
   const { activeTab } = useOccurrence();
 
   return (
-    <div className="workspace-split">
+    <div className="grid grid-cols-[340px_1fr] flex-1 overflow-hidden">
       {/* INCIDENT LIST COLUMN */}
       <CaseQueue />
 
       {/* INCIDENT DETAIL WORKBENCH */}
-      <div className="incident-detail-col">
+      <div className="overflow-y-auto p-6 sm:p-8 flex flex-col gap-5">
         {/* CASE HEADER */}
-        <div className="case-banner">
+        <div className="bg-white border border-slate-200 rounded-xl p-5 pb-0 shadow-xs">
           <CaseBanner />
           <WorkflowStepper />
           <WorkspaceTabs />

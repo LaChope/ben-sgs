@@ -8,38 +8,58 @@ export function EccairsView() {
   );
 
   return (
-    <div className="page-content">
-      <div className="page-header">
-        <h2>Czech CAA — Mandatory Occurrence Reporting (ECCAIRS)</h2>
-        <p>Regulatory oversight feed compliant with Regulation (EU) 376/2014</p>
+    <div className="p-6 sm:p-8 overflow-y-auto flex-1">
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+          Czech CAA — Mandatory Occurrence Reporting (ECCAIRS)
+        </h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Regulatory oversight feed compliant with Regulation (EU) 376/2014
+        </p>
       </div>
-      <div className="card">
-        <table className="modern-table">
-          <thead>
-            <tr>
-              <th>ECCAIRS Reference</th>
-              <th>Operator Control ID</th>
-              <th>Filing Date</th>
-              <th>Aircraft Type</th>
-              <th>Headline</th>
-              <th>Safety Evaluation Summary</th>
-            </tr>
-          </thead>
-          <tbody>
-            {submittedOccurrences.map((occ) => (
-              <tr key={occ.operatorControlNumber}>
-                <td className="font-mono">
-                  <strong>{occ.authorityReport?.eccairsReference}</strong>
-                </td>
-                <td className="font-mono">{occ.operatorControlNumber}</td>
-                <td>{occ.authorityReport?.submissionDate}</td>
-                <td>{occ.aircraft.acModel}</td>
-                <td>{occ.headline}</td>
-                <td>{occ.authorityReport?.safetyEvaluationNotes}</td>
+
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 text-xs font-semibold uppercase tracking-wider">
+                <th className="py-3 px-4">ECCAIRS Reference</th>
+                <th className="py-3 px-4">Operator Control ID</th>
+                <th className="py-3 px-4">Filing Date</th>
+                <th className="py-3 px-4">Aircraft Type</th>
+                <th className="py-3 px-4">Headline</th>
+                <th className="py-3 px-4">Safety Evaluation Summary</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {submittedOccurrences.map((occ) => (
+                <tr
+                  key={occ.operatorControlNumber}
+                  className="hover:bg-slate-50 transition-colors"
+                >
+                  <td className="py-3 px-4 font-mono font-bold text-slate-900 text-xs">
+                    {occ.authorityReport?.eccairsReference}
+                  </td>
+                  <td className="py-3 px-4 font-mono text-slate-600 text-xs">
+                    {occ.operatorControlNumber}
+                  </td>
+                  <td className="py-3 px-4 text-slate-600 text-xs">
+                    {occ.authorityReport?.submissionDate}
+                  </td>
+                  <td className="py-3 px-4 text-slate-700 text-xs">
+                    {occ.aircraft.acModel}
+                  </td>
+                  <td className="py-3 px-4 font-semibold text-slate-900 text-xs">
+                    {occ.headline}
+                  </td>
+                  <td className="py-3 px-4 text-slate-600 text-xs leading-relaxed max-w-sm">
+                    {occ.authorityReport?.safetyEvaluationNotes}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

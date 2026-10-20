@@ -5,46 +5,66 @@ export function OemSupportTab() {
   const techReq = selectedOcc.technicalRequest;
 
   return (
-    <div className="tab-body">
+    <div className="flex flex-col gap-5">
       {techReq ? (
-        <div className="detail-grid">
-          <div className="card">
-            <h3>TechRequest &amp; Screening Summary</h3>
-            <div className="kv-list">
-              <div className="kv-row">
-                <span>Request Reference</span>
-                <strong>{techReq.requestID}</strong>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 pb-2 border-b border-slate-100">
+              TechRequest &amp; Screening Summary
+            </h3>
+            <div className="flex flex-col gap-2.5">
+              <div className="flex justify-between items-center text-sm py-1.5 border-b border-slate-100">
+                <span className="text-slate-500 text-xs font-medium">
+                  Request Reference
+                </span>
+                <strong className="text-slate-900 font-semibold font-mono text-xs">
+                  {techReq.requestID}
+                </strong>
               </div>
-              <div className="kv-row">
-                <span>Submitted By</span>
-                <strong>
+              <div className="flex justify-between items-center text-sm py-1.5 border-b border-slate-100">
+                <span className="text-slate-500 text-xs font-medium">
+                  Submitted By
+                </span>
+                <strong className="text-slate-900 font-semibold text-right">
                   {isExternalPartner
                     ? "Partner CAMO"
                     : techReq.originatingEntity}{" "}
-                  ({techReq.submissionDate})
+                  <span className="text-slate-400 font-normal">
+                    ({techReq.submissionDate})
+                  </span>
                 </strong>
               </div>
-              <div className="kv-row">
-                <span>OEM Receipt Acknowledgement</span>
-                <strong className="text-success">
+              <div className="flex justify-between items-center text-sm py-1.5 border-b border-slate-100">
+                <span className="text-slate-500 text-xs font-medium">
+                  OEM Receipt Acknowledgement
+                </span>
+                <strong className="text-emerald-600 font-semibold text-right text-xs">
                   {techReq.ackReceiptTimestamp || "Pending Acknowledgement"}
                 </strong>
               </div>
               {techReq.classification && (
                 <>
-                  <div className="kv-row">
-                    <span>Classification Severity</span>
-                    <strong>{techReq.classification.occClassification}</strong>
+                  <div className="flex justify-between items-center text-sm py-1.5 border-b border-slate-100">
+                    <span className="text-slate-500 text-xs font-medium">
+                      Classification Severity
+                    </span>
+                    <strong className="text-slate-900 font-semibold text-right">
+                      {techReq.classification.occClassification}
+                    </strong>
                   </div>
-                  <div className="kv-row">
-                    <span>Assigned Design Lead</span>
-                    <strong>
+                  <div className="flex justify-between items-center text-sm py-1.5 border-b border-slate-100">
+                    <span className="text-slate-500 text-xs font-medium">
+                      Assigned Design Lead
+                    </span>
+                    <strong className="text-slate-900 font-semibold text-right">
                       {techReq.classification.occLeaderFocalPoint}
                     </strong>
                   </div>
-                  <div className="kv-row">
-                    <span>Target Closure Date</span>
-                    <strong>
+                  <div className="flex justify-between items-center text-sm py-1.5">
+                    <span className="text-slate-500 text-xs font-medium">
+                      Target Closure Date
+                    </span>
+                    <strong className="text-slate-900 font-semibold text-right">
                       {techReq.classification.garaTargetClosureDate}
                     </strong>
                   </div>
@@ -53,35 +73,55 @@ export function OemSupportTab() {
             </div>
           </div>
 
-          <div className="card">
-            <h3>OEM Design Office Engineering Disposition</h3>
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 pb-2 border-b border-slate-100">
+              OEM Design Office Engineering Disposition
+            </h3>
             {techReq.assessment ? (
-              <div className="kv-list">
-                <div className="kv-row">
-                  <span>Investigation Findings</span>
-                  <strong>{techReq.assessment.investigationDetails}</strong>
+              <div className="flex flex-col gap-2.5">
+                <div className="flex justify-between items-start text-sm py-1.5 border-b border-slate-100 gap-4">
+                  <span className="text-slate-500 text-xs font-medium min-w-[140px]">
+                    Investigation Findings
+                  </span>
+                  <strong className="text-slate-900 font-semibold text-right text-xs leading-relaxed">
+                    {techReq.assessment.investigationDetails}
+                  </strong>
                 </div>
-                <div className="kv-row">
-                  <span>Short-Term Operational Action</span>
-                  <strong>{techReq.assessment.shortTermAction}</strong>
+                <div className="flex justify-between items-start text-sm py-1.5 border-b border-slate-100 gap-4">
+                  <span className="text-slate-500 text-xs font-medium min-w-[140px]">
+                    Short-Term Action
+                  </span>
+                  <strong className="text-slate-900 font-semibold text-right text-xs leading-relaxed">
+                    {techReq.assessment.shortTermAction}
+                  </strong>
                 </div>
-                <div className="kv-row">
-                  <span>Airworthiness Impact</span>
-                  <strong>{techReq.assessment.airworthinessImpact}</strong>
+                <div className="flex justify-between items-start text-sm py-1.5 border-b border-slate-100 gap-4">
+                  <span className="text-slate-500 text-xs font-medium min-w-[140px]">
+                    Airworthiness Impact
+                  </span>
+                  <strong className="text-slate-900 font-semibold text-right text-xs leading-relaxed">
+                    {techReq.assessment.airworthinessImpact}
+                  </strong>
                 </div>
-                <div className="kv-row">
-                  <span>Recommended Corrective Action</span>
-                  <strong className="text-success">
+                <div className="flex justify-between items-start text-sm py-1.5 border-b border-slate-100 gap-4">
+                  <span className="text-slate-500 text-xs font-medium min-w-[140px]">
+                    Recommended Action
+                  </span>
+                  <strong className="text-emerald-700 font-semibold text-right text-xs leading-relaxed">
                     {techReq.assessment.correctiveAction}
                   </strong>
                 </div>
-                <div className="kv-row">
-                  <span>Sign-Off</span>
-                  <strong>{techReq.assessment.roLeaderSignature}</strong>
+                <div className="flex justify-between items-center text-sm py-1.5">
+                  <span className="text-slate-500 text-xs font-medium">
+                    Sign-Off
+                  </span>
+                  <strong className="text-slate-900 font-semibold text-right text-xs">
+                    {techReq.assessment.roLeaderSignature}
+                  </strong>
                 </div>
               </div>
             ) : (
-              <p className="empty-state-text">
+              <p className="text-slate-500 text-xs italic leading-relaxed m-0 py-6 text-center">
                 Engineering investigation is currently in progress. Switch to
                 OEM Customer Support or Design Office persona to complete
                 disposition.
@@ -90,8 +130,8 @@ export function OemSupportTab() {
           </div>
         </div>
       ) : (
-        <div className="card">
-          <p className="empty-state-text">
+        <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-xs text-center">
+          <p className="text-slate-500 text-sm m-0">
             No OEM Technical Request has been initiated for this occurrence yet.
             Switch to the CAMO role to escalate to the manufacturer.
           </p>
