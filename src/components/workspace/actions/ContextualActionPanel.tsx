@@ -47,7 +47,7 @@ export function ContextualActionPanel() {
             />
             <button
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs py-2 px-4 rounded-lg transition-colors cursor-pointer self-start shadow-xs border-0 mt-1"
-              onClick={handleCamoSubmitToOem}
+              onClick={() => handleCamoSubmitToOem()}
             >
               Transmit Technical Request to OEM
             </button>
@@ -67,7 +67,7 @@ export function ContextualActionPanel() {
             </div>
             <button
               className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs py-2 px-4 rounded-lg transition-colors cursor-pointer shrink-0 shadow-xs border-0"
-              onClick={handleOperatorApplyFix}
+              onClick={() => handleOperatorApplyFix()}
             >
               Execute Maintenance Action &amp; Close Case
             </button>

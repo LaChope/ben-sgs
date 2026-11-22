@@ -3,8 +3,12 @@ import { useOccurrence } from "../../context";
 export function KpiGrid() {
   const { occurrences } = useOccurrence();
 
-  const openTechRequestsCount = occurrences.filter(
+  const openCount = occurrences.filter(
     (o) => o.oemState !== "CLOSED_APPLIED",
+  ).length;
+
+  const closedCount = occurrences.filter(
+    (o) => o.oemState === "CLOSED_APPLIED",
   ).length;
 
   const eccairsFilingsCount = occurrences.filter(
@@ -13,41 +17,41 @@ export function KpiGrid() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+      <div className="bg-white border border-slate-200 border-t-4 border-t-blue-500 rounded-xl p-5 shadow-xs">
         <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider block">
-          Active Fleet Occurrences
+          Open Occurrences (Open OCC)
         </span>
-        <div className="text-3xl font-bold my-1 text-slate-900">
-          {occurrences.length}
-        </div>
-        <span className="text-xs text-slate-600">
-          ATA 27 Slat System Cluster Detected
+        <div className="text-3xl font-bold my-1 text-slate-900">{openCount}</div>
+        <span className="text-xs text-blue-600 font-semibold">
+          Active Fleet Investigation &amp; OEM Support
         </span>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+      <div className="bg-white border border-slate-200 border-t-4 border-t-emerald-500 rounded-xl p-5 shadow-xs">
         <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider block">
-          Open OEM TechRequests
+          Closed Occurrences
         </span>
         <div className="text-3xl font-bold my-1 text-slate-900">
-          {openTechRequestsCount}
+          {closedCount}
         </div>
         <span className="text-xs text-emerald-600 font-semibold">
-          Avg OEM Ack Time: 17 mins
+          Corrective Action Applied &amp; Verified
         </span>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+      <div className="bg-white border border-slate-200 border-t-4 border-t-rose-500 rounded-xl p-5 shadow-xs">
         <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider block">
-          ECCAIRS Mandatory Filings
+          CAA Reported Events (ECCAIRS)
         </span>
         <div className="text-3xl font-bold my-1 text-slate-900">
-          {eccairsFilingsCount}
+          {eccairsFilingsCount} / {occurrences.length}
         </div>
-        <span className="text-xs text-slate-600">Synced with Czech CAA</span>
+        <span className="text-xs text-slate-600">
+          Synced with Reg (EU) 376/2014
+        </span>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+      <div className="bg-white border border-slate-200 border-t-4 border-t-slate-700 rounded-xl p-5 shadow-xs">
         <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider block">
           SFHA Design Baseline Alignment
         </span>

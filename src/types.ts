@@ -9,7 +9,9 @@ export type StakeholderRole =
   | "EXTERNAL_OPERATOR"; // Demonstrates federated anonymization
 
 export type RegulatoryTrackState =
-  "PENDING_SAFETY_REVIEW" | "NOT_REPORTABLE" | "SUBMITTED_TO_CAA";
+  | "PENDING_SAFETY_REVIEW"
+  | "NOT_REPORTABLE"
+  | "SUBMITTED_TO_CAA";
 
 export type OemTrackState =
   | "PENDING_CAMO_REVIEW"
@@ -33,11 +35,62 @@ export interface AuditEntry {
 // Class 1: AircraftContext (WHERE/WHEN)
 export interface AircraftContext {
   msn: string;
+  registration: string;
   program: string;
+  acMake: string;
   acModel: string;
+  acSeries: string;
+  engineMake: string;
+  engineModel: string;
   operatorName: string;
   flightCycles: number;
   flightHours: number;
+}
+
+// ECCAIRS Taxonomy metadata (Operator Reporting)
+export interface EccairsTaxonomy {
+  reportingCapacity: "Organization / Operator" | "Personal / Individual";
+  stateOfOccurrence: string;
+  occurrenceClass:
+    | "Accident"
+    | "Serious Incident"
+    | "Major Incident"
+    | "Significant Incident"
+    | "Occurrence without Safety Effect";
+  occurrenceCategory: string;
+  technicalSubcategory: string;
+  ammReference: string;
+}
+
+// Technical Investigation (STPA / Hazard Analysis / Root Cause Analysis)
+export interface HazardAnalysisFields {
+  failureCondition: string;
+  safetyEffect: string;
+  severityClassification: string;
+  barriersAndMitigation: string;
+}
+
+export interface RootCauseFields {
+  problemStatement: string;
+  fiveWhyChain: string;
+  fishboneFactors: string;
+  verifiedRootCause: string;
+}
+
+export interface StpaInvestigation {
+  methodology: "STPA" | "Hazard Analysis" | "Root Cause Analysis";
+  status: "Not Started" | "In Progress" | "Completed";
+  // STPA fields
+  controlStructure: string;
+  unsafeControlAction: string;
+  lossScenario: string;
+  causalFactors: string;
+  // Hazard Analysis (FHA / SFHA) fields
+  hazardAnalysis?: HazardAnalysisFields;
+  // Root Cause Analysis (5-Why / Fishbone) fields
+  rootCause?: RootCauseFields;
+  hazardReference: string;
+  summary: string;
 }
 
 // Class 4: AuthorityReport (R9, R14)
@@ -106,6 +159,7 @@ export interface OperationalOccurrence {
   operatorControlNumber: string;
   headline: string;
   eventDate: string;
+  ataChapter: string;
   eventState: string;
   eventArea: string;
   flightPhase: string;
@@ -119,6 +173,8 @@ export interface OperationalOccurrence {
 
   // Composition & Associations
   aircraft: AircraftContext; // 1..* occurs on 1
+  eccairsTaxonomy: EccairsTaxonomy;
+  investigation: StpaInvestigation;
   regulatoryState: RegulatoryTrackState;
   oemState: OemTrackState;
   authorityReport?: AuthorityReport; // 0..1
@@ -135,7 +191,11 @@ export interface Persona {
   themeColor: string;
 }
 
-export type NavSection =
-  "DASHBOARD" | "INCIDENTS" | "FEDERATED_RADAR" | "ECCAIRS";
+export type NavSection = "DASHBOARD" | "REPORT" | "INVESTIGATION";
+
 export type WorkspaceTab =
-  "OVERVIEW" | "OEM_SUPPORT" | "SFHA_BASELINE" | "COMPLIANCE";
+  | "INVESTIGATION"
+  | "OVERVIEW"
+  | "OEM_SUPPORT"
+  | "SFHA_BASELINE"
+  | "COMPLIANCE";

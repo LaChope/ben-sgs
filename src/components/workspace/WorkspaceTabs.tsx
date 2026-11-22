@@ -4,10 +4,11 @@ export function WorkspaceTabs() {
   const { activeTab, setActiveTab } = useOccurrence();
 
   const tabs = [
+    { id: "INVESTIGATION", label: "STPA & Investigation" },
     { id: "OVERVIEW", label: "Operational Context & Discrepancy" },
     { id: "OEM_SUPPORT", label: "OEM TechRequest & Engineering" },
-    { id: "SFHA_BASELINE", label: "SFHA Safety Baseline Comparison" },
-    { id: "COMPLIANCE", label: "Regulatory Filing & Activity Log" },
+    { id: "SFHA_BASELINE", label: "SFHA Safety Baseline" },
+    { id: "COMPLIANCE", label: "Regulatory & Activity Log" },
   ] as const;
 
   return (

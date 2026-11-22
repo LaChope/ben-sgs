@@ -2,10 +2,8 @@ import { OccurrenceProvider, useOccurrence } from "./context";
 import { Sidebar } from "./components/layout/Sidebar";
 import { Topbar } from "./components/layout/Topbar";
 import { FleetDashboard } from "./components/dashboard/FleetDashboard";
+import { ReportOccurrenceView } from "./components/report/ReportOccurrenceView";
 import { OccurrenceWorkspace } from "./components/workspace/OccurrenceWorkspace";
-import { FederatedRadarView } from "./components/radar/FederatedRadarView";
-import { EccairsView } from "./components/eccairs/EccairsView";
-import { NewOccurrenceModal } from "./components/modals/NewOccurrenceModal";
 
 function AppContent() {
   const { activeNav } = useOccurrence();
@@ -18,12 +16,9 @@ function AppContent() {
         <Topbar />
 
         {activeNav === "DASHBOARD" && <FleetDashboard />}
-        {activeNav === "INCIDENTS" && <OccurrenceWorkspace />}
-        {activeNav === "FEDERATED_RADAR" && <FederatedRadarView />}
-        {activeNav === "ECCAIRS" && <EccairsView />}
+        {activeNav === "REPORT" && <ReportOccurrenceView />}
+        {activeNav === "INVESTIGATION" && <OccurrenceWorkspace />}
       </div>
-
-      <NewOccurrenceModal />
     </div>
   );
 }

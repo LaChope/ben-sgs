@@ -6,7 +6,7 @@ export function Topbar() {
   const {
     searchQuery,
     setSearchQuery,
-    setShowNewModal,
+    setActiveNav,
     activeRole,
     setActiveRole,
     currentPersona,
@@ -18,7 +18,7 @@ export function Topbar() {
         <input
           type="text"
           className="w-[380px] py-2 px-3.5 border border-slate-300 rounded-lg text-sm bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
-          placeholder="Search occurrences by ID, ATA chapter, component (e.g. 6085CM)..."
+          placeholder="Search occurrences by ID, ATA, A/C reg, engine, discrepancy..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -27,7 +27,7 @@ export function Topbar() {
       <div className="flex items-center gap-4">
         <button
           className="bg-slate-900 hover:bg-slate-800 text-white py-2 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer border-0 shadow-xs"
-          onClick={() => setShowNewModal(true)}
+          onClick={() => setActiveNav("REPORT")}
         >
           + Report Occurrence
         </button>

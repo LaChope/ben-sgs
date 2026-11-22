@@ -6,11 +6,15 @@ import type {
   TechnicalAssessment,
   NavSection,
   WorkspaceTab,
+  StpaInvestigation,
 } from "../types";
 import { INITIAL_OCCURRENCES, SAFETY_BASELINES } from "../mockData";
 import { PERSONAS } from "../constants/personas";
 import { OccurrenceContext } from "./OccurrenceContext";
-import type { NewOccurrenceFormData } from "./occurrenceTypes";
+import type {
+  NewOccurrenceFormData,
+  OemDirectUpdateData,
+} from "./occurrenceTypes";
 
 const nowStr = () =>
   new Date().toISOString().replace("T", " ").substring(0, 16);
@@ -27,10 +31,9 @@ export function OccurrenceProvider({
   );
   const [activeRole, setActiveRole] =
     useState<StakeholderRole>("OPERATOR_CAMO");
-  const [activeNav, setActiveNav] = useState<NavSection>("INCIDENTS");
-  const [activeTab, setActiveTab] = useState<WorkspaceTab>("OVERVIEW");
+  const [activeNav, setActiveNav] = useState<NavSection>("DASHBOARD");
+  const [activeTab, setActiveTab] = useState<WorkspaceTab>("INVESTIGATION");
   const [searchQuery, setSearchQuery] = useState("");
-  const [showNewModal, setShowNewModal] = useState(false);
 
   // Form states
   const [safetyNotes, setSafetyNotes] = useState(
@@ -96,14 +99,23 @@ export function OccurrenceProvider({
     );
   };
 
-  const handleSafetyReportDecision = (isReportable: boolean) => {
-    updateOccurrence(selectedOcc.operatorControlNumber, (occ) => ({
+  const handleSafetyReportDecision = (
+    isReportable: boolean,
+    targetOcn?: string,
+  ) => {
+    const ocn = targetOcn || selectedOcc.operatorControlNumber;
+    updateOccurrence(ocn, (occ) => ({
       ...occ,
       regulatoryState: isReportable ? "SUBMITTED_TO_CAA" : "NOT_REPORTABLE",
       authorityReport: {
-        reportID: `MOR-${Math.floor(1000 + Math.random() * 9000)}`,
+        reportID:
+          occ.authorityReport?.reportID ||
+          `MOR-${Math.floor(1000 + Math.random() * 9000)}`,
         eccairsReference: isReportable
-          ? `ECCAIRS-CZ-2026-${Math.floor(1000 + Math.random() * 9000)}`
+          ? occ.authorityReport?.eccairsReference &&
+            occ.authorityReport.eccairsReference !== "Internal SMS Only"
+            ? occ.authorityReport.eccairsReference
+            : `ECCAIRS-CZ-2026-${Math.floor(1000 + Math.random() * 9000)}`
           : "Internal SMS Only",
         isReportable,
         submissionDate: nowStr(),
@@ -113,20 +125,21 @@ export function OccurrenceProvider({
         ...occ.auditTrail,
         {
           timestamp: nowStr(),
-          actorRole: "OPERATOR_SAFETY",
-          organizationName: "Alpha Air SMS",
+          actorRole: activeRole,
+          organizationName: currentPersona.orgName,
           action: isReportable
-            ? "Submitted Mandatory Occurrence Report to Czech CAA via ECCAIRS."
-            : "Closed regulatory evaluation as internal SMS occurrence.",
+            ? "Marked as Reported Event (YES) and submitted to CAA via ECCAIRS."
+            : "Marked as Non-Reportable (NO) — internal SMS occurrence only.",
           requirementRef: "ECCAIRS-FILING",
         },
       ],
     }));
   };
 
-  const handleCamoSubmitToOem = () => {
+  const handleCamoSubmitToOem = (targetOcn?: string) => {
+    const ocn = targetOcn || selectedOcc.operatorControlNumber;
     const reqId = `TR-${Math.floor(10000 + Math.random() * 90000)}`;
-    updateOccurrence(selectedOcc.operatorControlNumber, (occ) => ({
+    updateOccurrence(ocn, (occ) => ({
       ...occ,
       oemState: "SUBMITTED_TO_OEM_CS",
       eventState: "Awaiting OEM Receipt",
@@ -134,7 +147,7 @@ export function OccurrenceProvider({
         requestID: reqId,
         submissionDate: nowStr(),
         currentStatus: "SUBMITTED_TO_OEM_CS",
-        originatingEntity: "Alpha Air CAMO",
+        originatingEntity: `${occ.aircraft.operatorName} CAMO`,
         camoNotes,
       },
       auditTrail: [
@@ -254,8 +267,9 @@ export function OccurrenceProvider({
     });
   };
 
-  const handleOperatorApplyFix = () => {
-    updateOccurrence(selectedOcc.operatorControlNumber, (occ) => ({
+  const handleOperatorApplyFix = (targetOcn?: string) => {
+    const ocn = targetOcn || selectedOcc.operatorControlNumber;
+    updateOccurrence(ocn, (occ) => ({
       ...occ,
       oemState: "CLOSED_APPLIED",
       eventState: "Resolved & Closed",
@@ -276,15 +290,97 @@ export function OccurrenceProvider({
     }));
   };
 
+  const handleUpdateInvestigation = (
+    ocn: string,
+    investigation: StpaInvestigation,
+  ) => {
+    updateOccurrence(ocn, (occ) => ({
+      ...occ,
+      investigation,
+      auditTrail: [
+        ...occ.auditTrail,
+        {
+          timestamp: nowStr(),
+          actorRole: activeRole,
+          organizationName: currentPersona.orgName,
+          action: `Updated ${investigation.methodology} technical investigation (${investigation.status}).`,
+          requirementRef: "STPA-INV",
+        },
+      ],
+    }));
+  };
+
+  const handleUpdateOemFields = (ocn: string, data: OemDirectUpdateData) => {
+    updateOccurrence(ocn, (occ) => {
+      const existingReq = occ.technicalRequest;
+      const baseAssessment: TechnicalAssessment = existingReq?.assessment || {
+        ...assessmentForm,
+      };
+      const updatedAssessment: TechnicalAssessment = {
+        ...baseAssessment,
+        investigationDetails: data.investigationDetails,
+        correctiveAction: data.correctiveAction,
+        airworthinessImpact: data.airworthinessImpact,
+      };
+      return {
+        ...occ,
+        oemState:
+          occ.oemState === "CLOSED_APPLIED"
+            ? "CLOSED_APPLIED"
+            : "RESPONSE_SENT_TO_CAMO",
+        eventState:
+          occ.oemState === "CLOSED_APPLIED"
+            ? "Resolved & Closed"
+            : "Corrective Action Issued",
+        appliedCorrectiveAction:
+          occ.oemState === "CLOSED_APPLIED"
+            ? data.correctiveAction
+            : occ.appliedCorrectiveAction,
+        technicalRequest: {
+          requestID:
+            existingReq?.requestID ||
+            `TR-OEM-2026-${Math.floor(100 + Math.random() * 900)}`,
+          submissionDate: existingReq?.submissionDate || nowStr(),
+          ackReceiptTimestamp: existingReq?.ackReceiptTimestamp || nowStr(),
+          currentStatus:
+            occ.oemState === "CLOSED_APPLIED"
+              ? "CLOSED_APPLIED"
+              : "RESPONSE_SENT_TO_CAMO",
+          originatingEntity:
+            existingReq?.originatingEntity ||
+            `${occ.aircraft.operatorName} CAMO`,
+          camoNotes:
+            existingReq?.camoNotes || "OEM engineering assessment recorded.",
+          classification: existingReq?.classification,
+          assessment: updatedAssessment,
+        },
+        auditTrail: [
+          ...occ.auditTrail,
+          {
+            timestamp: nowStr(),
+            actorRole: activeRole,
+            organizationName: "Airframe OEM",
+            action:
+              "Updated OEM investigation, corrective action, and impact on airworthiness.",
+            requirementRef: "OEM-ASSESS",
+          },
+        ],
+      };
+    });
+  };
+
   const handleCreateOccurrence = (data: NewOccurrenceFormData) => {
     if (!data.headline.trim()) return;
-    const newOcn = `ANCF202606${Math.floor(10000 + Math.random() * 90000)}`;
+    const newOcn = `ANCF2026${Math.floor(1000000 + Math.random() * 9000000)}`;
+    const isReported = Boolean(data.reportToCaa);
+    const shouldNotifyOem = Boolean(data.notifyOem);
     const created: OperationalOccurrence = {
       operatorControlNumber: newOcn,
       headline: data.headline,
-      eventDate: new Date().toISOString().substring(0, 10),
-      eventState: "New Occurrence",
-      eventArea: "PRG / LKPR",
+      eventDate: data.eventDate || new Date().toISOString().substring(0, 10),
+      ataChapter: data.ataChapter || "27-84",
+      eventState: shouldNotifyOem ? "Awaiting OEM Receipt" : "New Occurrence",
+      eventArea: data.eccairsTaxonomy.stateOfOccurrence || "PRG / LKPR",
       flightPhase: data.flightPhase,
       component: data.component,
       discrepancy:
@@ -295,40 +391,84 @@ export function OccurrenceProvider({
       functionalEffect: "System redundancy degraded",
       safetyEffect: "Safety margin assessment pending",
       aircraft: {
-        msn: "MSN-1042",
+        msn: `MSN-${Math.floor(1000 + Math.random() * 8999)}`,
+        registration: data.registration || "OK-NEO",
         program: "Single-Aisle Programme",
-        acModel: "A320-214",
-        operatorName: "Alpha Air",
+        acMake: data.acMake || "Airbus",
+        acModel: data.acModel || "A320",
+        acSeries: data.acSeries || "214",
+        engineMake: data.engineMake || "CFM International",
+        engineModel: data.engineModel || "CFM56-5B4/P",
+        operatorName: data.operatorName || "Alpha Air (OP-A)",
         flightCycles: 14315,
         flightHours: 26472.0,
       },
-      regulatoryState: "PENDING_SAFETY_REVIEW",
-      oemState: "PENDING_CAMO_REVIEW",
+      eccairsTaxonomy: data.eccairsTaxonomy,
+      investigation: {
+        methodology: "STPA",
+        status: "Not Started",
+        controlStructure: "",
+        unsafeControlAction: "",
+        lossScenario: "",
+        causalFactors: "",
+        hazardReference: "SFHA S-02.01.01.B",
+        summary: "Initial occurrence logged; STPA investigation pending.",
+      },
+      regulatoryState: isReported
+        ? "SUBMITTED_TO_CAA"
+        : "PENDING_SAFETY_REVIEW",
+      oemState: shouldNotifyOem ? "SUBMITTED_TO_OEM_CS" : "PENDING_CAMO_REVIEW",
+      authorityReport: isReported
+        ? {
+            reportID: `MOR-${Math.floor(1000 + Math.random() * 9000)}`,
+            eccairsReference: `ECCAIRS-EU-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+            isReportable: true,
+            submissionDate: nowStr(),
+            safetyEvaluationNotes: `Submitted via ECCAIRS Taxonomy (${data.eccairsTaxonomy.occurrenceClass}).`,
+          }
+        : undefined,
+      technicalRequest: shouldNotifyOem
+        ? {
+            requestID: `TR-OEM-2026-${Math.floor(100 + Math.random() * 900)}`,
+            submissionDate: nowStr(),
+            currentStatus: "SUBMITTED_TO_OEM_CS",
+            originatingEntity: `${data.operatorName || "Alpha Air"} CAMO`,
+            camoNotes: "Initiated OEM support upon occurrence submission.",
+          }
+        : undefined,
       baselineRefId: "SFHA-27-SLAT-01",
       auditTrail: [
         {
           timestamp: nowStr(),
-          actorRole: "OPERATOR_OPS",
-          organizationName: "Alpha Air Flight Ops",
+          actorRole: activeRole,
+          organizationName: data.operatorName || currentPersona.orgName,
           action:
-            "Logged operational occurrence from flight deck / maintenance logbook.",
+            "Logged operational occurrence using ECCAIRS Taxonomy reporting form.",
           requirementRef: "INITIAL-LOG",
         },
       ],
     };
-    setOccurrences([created, ...occurrences]);
+    setOccurrences((prev) => [created, ...prev]);
     setSelectedId(newOcn);
-    setShowNewModal(false);
   };
 
-  const filteredOccurrences = occurrences.filter(
-    (o) =>
-      o.operatorControlNumber
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      o.headline.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      o.component.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const filteredOccurrences = occurrences.filter((o) => {
+    const q = searchQuery.toLowerCase();
+    if (!q) return true;
+    return (
+      o.operatorControlNumber.toLowerCase().includes(q) ||
+      o.headline.toLowerCase().includes(q) ||
+      o.component.toLowerCase().includes(q) ||
+      o.ataChapter.toLowerCase().includes(q) ||
+      o.aircraft.registration.toLowerCase().includes(q) ||
+      o.aircraft.acMake.toLowerCase().includes(q) ||
+      o.aircraft.acModel.toLowerCase().includes(q) ||
+      o.aircraft.engineMake.toLowerCase().includes(q) ||
+      o.aircraft.engineModel.toLowerCase().includes(q) ||
+      o.aircraft.operatorName.toLowerCase().includes(q) ||
+      o.discrepancy.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <OccurrenceContext.Provider
@@ -344,8 +484,6 @@ export function OccurrenceProvider({
         setActiveTab,
         searchQuery,
         setSearchQuery,
-        showNewModal,
-        setShowNewModal,
         safetyNotes,
         setSafetyNotes,
         camoNotes,
@@ -367,6 +505,8 @@ export function OccurrenceProvider({
         handleOemCsSendResponse,
         handleOperatorApplyFix,
         handleCreateOccurrence,
+        handleUpdateInvestigation,
+        handleUpdateOemFields,
       }}
     >
       {children}

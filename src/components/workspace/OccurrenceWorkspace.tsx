@@ -4,6 +4,7 @@ import { CaseBanner } from "./CaseBanner";
 import { WorkflowStepper } from "./WorkflowStepper";
 import { WorkspaceTabs } from "./WorkspaceTabs";
 import { ContextualActionPanel } from "./actions/ContextualActionPanel";
+import { InvestigationTab } from "./tabs/InvestigationTab";
 import { OverviewTab } from "./tabs/OverviewTab";
 import { OemSupportTab } from "./tabs/OemSupportTab";
 import { SfhaBaselineTab } from "./tabs/SfhaBaselineTab";
@@ -30,6 +31,7 @@ export function OccurrenceWorkspace() {
         <ContextualActionPanel />
 
         {/* TAB CONTENTS */}
+        {activeTab === "INVESTIGATION" && <InvestigationTab />}
         {activeTab === "OVERVIEW" && <OverviewTab />}
         {activeTab === "OEM_SUPPORT" && <OemSupportTab />}
         {activeTab === "SFHA_BASELINE" && <SfhaBaselineTab />}

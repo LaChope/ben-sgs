@@ -3,6 +3,17 @@ import { useOccurrence } from "../../context";
 export function Sidebar() {
   const { activeNav, setActiveNav, occurrences } = useOccurrence();
 
+  const openCount = occurrences.filter(
+    (o) => o.oemState !== "CLOSED_APPLIED",
+  ).length;
+
+  const navBtnClass = (isActive: boolean) =>
+    `w-full flex items-center gap-2.5 p-2.5 px-3.5 rounded-lg text-left text-sm font-medium transition-colors cursor-pointer border-0 ${
+      isActive
+        ? "bg-blue-600 text-white font-semibold shadow-xs"
+        : "text-slate-300 hover:bg-slate-800 hover:text-white"
+    }`;
+
   return (
     <aside className="w-[250px] bg-slate-900 text-slate-50 flex flex-col p-4 border-r border-slate-800 shrink-0">
       <div className="flex items-center gap-3 px-2 pb-6 border-b border-slate-800">
@@ -19,47 +30,30 @@ export function Sidebar() {
 
       <nav className="flex flex-col gap-1.5 mt-5 flex-1">
         <button
-          className={`w-full flex items-center gap-2.5 p-2.5 px-3.5 rounded-lg text-left text-sm font-medium transition-colors cursor-pointer border-0 ${
-            activeNav === "DASHBOARD"
-              ? "bg-blue-600 text-white font-semibold shadow-xs"
-              : "text-slate-300 hover:bg-slate-800 hover:text-white"
-          }`}
+          className={navBtnClass(activeNav === "DASHBOARD")}
           onClick={() => setActiveNav("DASHBOARD")}
         >
-          <span>📊</span> Fleet Safety Overview
-        </button>
-        <button
-          className={`w-full flex items-center gap-2.5 p-2.5 px-3.5 rounded-lg text-left text-sm font-medium transition-colors cursor-pointer border-0 ${
-            activeNav === "INCIDENTS"
-              ? "bg-blue-600 text-white font-semibold shadow-xs"
-              : "text-slate-300 hover:bg-slate-800 hover:text-white"
-          }`}
-          onClick={() => setActiveNav("INCIDENTS")}
-        >
-          <span>🛠</span> Occurrence Workspace
-          <span className="ml-auto bg-white/20 text-white px-2 py-0.5 rounded-full text-xs font-semibold">
-            {occurrences.length}
+          <span>📊</span> Fleet Overview
+          <span className="ml-auto bg-white/15 text-white px-2 py-0.5 rounded-full text-[11px] font-semibold">
+            {openCount}
           </span>
         </button>
+
         <button
-          className={`w-full flex items-center gap-2.5 p-2.5 px-3.5 rounded-lg text-left text-sm font-medium transition-colors cursor-pointer border-0 ${
-            activeNav === "FEDERATED_RADAR"
-              ? "bg-blue-600 text-white font-semibold shadow-xs"
-              : "text-slate-300 hover:bg-slate-800 hover:text-white"
-          }`}
-          onClick={() => setActiveNav("FEDERATED_RADAR")}
+          className={navBtnClass(activeNav === "REPORT")}
+          onClick={() => setActiveNav("REPORT")}
         >
-          <span>🌐</span> Cross-Fleet Hazard Radar
+          <span>📋</span> Report Occurrence
         </button>
+
         <button
-          className={`w-full flex items-center gap-2.5 p-2.5 px-3.5 rounded-lg text-left text-sm font-medium transition-colors cursor-pointer border-0 ${
-            activeNav === "ECCAIRS"
-              ? "bg-blue-600 text-white font-semibold shadow-xs"
-              : "text-slate-300 hover:bg-slate-800 hover:text-white"
-          }`}
-          onClick={() => setActiveNav("ECCAIRS")}
+          className={navBtnClass(activeNav === "INVESTIGATION")}
+          onClick={() => setActiveNav("INVESTIGATION")}
         >
-          <span>🏛</span> Regulatory &amp; ECCAIRS
+          <span>🔬</span> Investigation
+          <span className="ml-auto bg-white/15 text-white px-2 py-0.5 rounded-full text-[11px] font-semibold">
+            {occurrences.length}
+          </span>
         </button>
       </nav>
 
